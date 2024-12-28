@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
@@ -10,6 +10,7 @@
             --secondary-color: #3498db;
             --text-color: #333;
             --sidebar-width: 250px;
+            --code-bg: #f4f4f4;
         }
 
         body {
@@ -39,6 +40,7 @@
             margin-left: var(--sidebar-width);
             padding: 2rem;
             flex: 1;
+            max-width: 800px;
         }
 
         .sidebar h2 {
@@ -66,27 +68,62 @@
             color: var(--secondary-color);
         }
 
-        .content h1 {
+        .content h1, .content h2 {
             color: var(--primary-color);
             border-bottom: 2px solid var(--primary-color);
             padding-bottom: 0.5rem;
+            margin-top: 2rem;
         }
 
         .content section {
-            margin-bottom: 2rem;
+            margin-bottom: 3rem;
         }
 
         code {
-            background: #f4f4f4;
+            background: var(--code-bg);
             padding: 0.2rem 0.4rem;
             border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
         }
 
         pre {
-            background: #f4f4f4;
+            background: var(--code-bg);
             padding: 1rem;
             border-radius: 5px;
             overflow-x: auto;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .feature-list li::before {
+            content: "•";
+            color: var(--secondary-color);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .warning {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .tip {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 1rem;
+            margin: 1rem 0;
         }
     </style>
 </head>
@@ -97,36 +134,176 @@
             <ul>
                 <li><a href="#wprowadzenie">Wprowadzenie</a></li>
                 <li><a href="#instalacja">Instalacja</a></li>
-                <li><a href="#konfiguracja">Konfiguracja</a></li>
+                <li><a href="#pierwsze-kroki">Pierwsze kroki</a></li>
                 <li><a href="#funkcje">Funkcje</a></li>
-                <li><a href="#api">API</a></li>
+                <li><a href="#konfiguracja">Konfiguracja</a></li>
+                <li><a href="#zarzadzanie-wydatkami">Zarządzanie wydatkami</a></li>
+                <li><a href="#raporty">Raporty i analizy</a></li>
+                <li><a href="#backup">Kopie zapasowe</a></li>
                 <li><a href="#faq">FAQ</a></li>
+                <li><a href="#wsparcie">Wsparcie techniczne</a></li>
             </ul>
         </nav>
 
         <main class="content">
             <section id="wprowadzenie">
                 <h1>Domowe Opłaty - Dokumentacja</h1>
-                <p>Aplikacja do zarządzania domowymi opłatami i budżetem.</p>
+                <p>Witamy w dokumentacji aplikacji Domowe Opłaty - kompleksowego narzędzia do zarządzania budżetem domowym.</p>
 
                 <h2>O programie</h2>
-                <p>Program służy do efektywnego zarządzania wydatkami domowymi, śledzenia opłat i planowania budżetu.</p>
+                <p>Domowe Opłaty to zaawansowana aplikacja desktopowa stworzona w Python z wykorzystaniem PyQt5, zaprojektowana z myślą o efektywnym zarządzaniu finansami domowymi.</p>
+
+                <div class="feature-list">
+                    <h3>Główne funkcje:</h3>
+                    <ul>
+                        <li>Śledzenie wydatków i przychodów</li>
+                        <li>Zarządzanie cyklicznymi płatnościami</li>
+                        <li>Generowanie raportów i wykresów</li>
+                        <li>System powiadomień o zbliżających się płatnościach</li>
+                        <li>Wielojęzyczny interfejs</li>
+                        <li>Automatyczne kopie zapasowe</li>
+                    </ul>
+                </div>
             </section>
 
             <section id="instalacja">
                 <h2>Instalacja</h2>
-                <p>Wymagania systemowe:</p>
+                <h3>Wymagania systemowe:</h3>
                 <ul>
-                    <li>Python 3.8+</li>
-                    <li>PyQt5</li>
-                    <li>SQLite3</li>
+                    <li>System operacyjny: Windows 10/11, Linux, macOS</li>
+                    <li>Python 3.8 lub nowszy</li>
+                    <li>Minimum 2GB RAM</li>
+                    <li>100MB wolnego miejsca na dysku</li>
                 </ul>
 
-                <p>Instalacja przez pip:</p>
-                <pre><code>pip install domowe-oplaty</code></pre>
+                <h3>Proces instalacji:</h3>
+                <pre><code># 1. Instalacja przez pip
+pip install domowe-oplaty
+
+# 2. Lub klonowanie repozytorium
+git clone https://github.com/twoj-username/domowe-oplaty.git
+cd domowe-oplaty
+pip install -r requirements.txt</code></pre>
+
+                <div class="tip">
+                    <strong>Porada:</strong> Zalecamy utworzenie wirtualnego środowiska Python przed instalacją.
+                </div>
             </section>
 
-            <!-- Dodaj pozostałe sekcje -->
+            <section id="pierwsze-kroki">
+                <h2>Pierwsze kroki</h2>
+                <p>Po zainstalowaniu aplikacji, wykonaj następujące kroki:</p>
+                <ol>
+                    <li>Uruchom aplikację poprzez komendę: <code>domowe-oplaty</code></li>
+                    <li>Przy pierwszym uruchomieniu zostaniesz poproszony o:</li>
+                    <ul>
+                        <li>Wybór języka interfejsu</li>
+                        <li>Ustawienie hasła dostępu (opcjonalne)</li>
+                        <li>Konfigurację podstawowych kategorii wydatków</li>
+                    </ul>
+                </ol>
+            </section>
+
+            <section id="funkcje">
+                <h2>Funkcje</h2>
+                <h3>Zarządzanie wydatkami</h3>
+                <ul>
+                    <li>Dodawanie pojedynczych wydatków</li>
+                    <li>Konfiguracja wydatków cyklicznych</li>
+                    <li>Kategoryzacja wydatków</li>
+                    <li>Import danych z plików CSV</li>
+                </ul>
+
+                <h3>Raporty i analizy</h3>
+                <ul>
+                    <li>Miesięczne zestawienia</li>
+                    <li>Wykresy wydatków</li>
+                    <li>Analiza trendów</li>
+                    <li>Eksport danych</li>
+                </ul>
+            </section>
+
+            <section id="konfiguracja">
+                <h2>Konfiguracja</h2>
+                <p>Aplikacja oferuje szereg opcji konfiguracyjnych dostępnych w menu Ustawienia:</p>
+
+                <h3>Podstawowa konfiguracja</h3>
+                <pre><code># Przykładowy plik konfiguracyjny config.ini
+[General]
+Language = pl
+AutoBackup = true
+BackupInterval = 7
+NotificationsEnabled = true
+
+[Database]
+Path = ./data/expenses.db
+AutoVacuum = true</code></pre>
+
+                <div class="warning">
+                    <strong>Uwaga:</strong> Po zmianie ustawień konieczne jest ponowne uruchomienie aplikacji.
+                </div>
+            </section>
+
+            <section id="zarzadzanie-wydatkami">
+                <h2>Zarządzanie wydatkami</h2>
+                <h3>Dodawanie wydatków</h3>
+                <p>Aby dodać nowy wydatek:</p>
+                <ol>
+                    <li>Kliknij przycisk "Nowy wydatek"</li>
+                    <li>Wypełnij formularz:</li>
+                    <ul>
+                        <li>Kwota</li>
+                        <li>Data</li>
+                        <li>Kategoria</li>
+                        <li>Opis (opcjonalnie)</li>
+                    </ul>
+                    <li>Zatwierdź przyciskiem "Zapisz"</li>
+                </ol>
+            </section>
+
+            <section id="raporty">
+                <h2>Raporty i analizy</h2>
+                <p>System raportowania pozwala na generowanie różnych typów zestawień:</p>
+                <ul>
+                    <li>Raporty miesięczne</li>
+                    <li>Zestawienia roczne</li>
+                    <li>Analizy kategorii</li>
+                    <li>Prognozy wydatków</li>
+                </ul>
+            </section>
+
+            <section id="backup">
+                <h2>Kopie zapasowe</h2>
+                <p>System automatycznie tworzy kopie zapasowe:</p>
+                <ul>
+                    <li>Codzienny backup danych</li>
+                    <li>Przechowywanie 7 ostatnich kopii</li>
+                    <li>Możliwość ręcznego tworzenia kopii</li>
+                </ul>
+            </section>
+
+            <section id="faq">
+                <h2>FAQ</h2>
+                <h3>Najczęściej zadawane pytania</h3>
+                <p><strong>P: Jak zmienić język aplikacji?</strong></p>
+                <p>O: Przejdź do Ustawienia -> Język i wybierz preferowany język z listy.</p>
+
+                <p><strong>P: Czy można importować dane z innych aplikacji?</strong></p>
+                <p>O: Tak, aplikacja wspiera import danych w formacie CSV i XML.</p>
+
+                <p><strong>P: Jak często tworzone są kopie zapasowe?</strong></p>
+                <p>O: Domyślnie co 7 dni, ale można zmienić tę wartość w ustawieniach.</p>
+            </section>
+
+            <section id="wsparcie">
+                <h2>Wsparcie techniczne</h2>
+                <p>W razie problemów technicznych:</p>
+                <ul>
+                    <li>Email: support@domowe-oplaty.pl</li>
+                    <li>GitHub Issues: <a href="https://github.com/twoj-username/domowe-oplaty/issues">Link do Issues</a></li>
+                    <li>Forum wsparcia: <a href="https://forum.domowe-oplaty.pl">forum.domowe-oplaty.pl</a></li>
+                </ul>
+            </section>
         </main>
     </div>
 </body>
