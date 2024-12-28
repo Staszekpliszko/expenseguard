@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dokumentacja - Domowe Opłaty</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --text-color: #333;
+            --sidebar-width: 250px;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--primary-color);
+            padding: 2rem;
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            flex: 1;
+        }
+
+        .sidebar h2 {
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid white;
+            padding-bottom: 0.5rem;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .sidebar a:hover {
+            color: var(--secondary-color);
+        }
+
+        .content h1 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .content section {
+            margin-bottom: 2rem;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+        }
+
+        pre {
+            background: #f4f4f4;
+            padding: 1rem;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <h2>Dokumentacja</h2>
+            <ul>
+                <li><a href="#wprowadzenie">Wprowadzenie</a></li>
+                <li><a href="#instalacja">Instalacja</a></li>
+                <li><a href="#konfiguracja">Konfiguracja</a></li>
+                <li><a href="#funkcje">Funkcje</a></li>
+                <li><a href="#api">API</a></li>
+                <li><a href="#faq">FAQ</a></li>
+            </ul>
+        </nav>
+
+        <main class="content">
+            <section id="wprowadzenie">
+                <h1>Domowe Opłaty - Dokumentacja</h1>
+                <p>Aplikacja do zarządzania domowymi opłatami i budżetem.</p>
+
+                <h2>O programie</h2>
+                <p>Program służy do efektywnego zarządzania wydatkami domowymi, śledzenia opłat i planowania budżetu.</p>
+            </section>
+
+            <section id="instalacja">
+                <h2>Instalacja</h2>
+                <p>Wymagania systemowe:</p>
+                <ul>
+                    <li>Python 3.8+</li>
+                    <li>PyQt5</li>
+                    <li>SQLite3</li>
+                </ul>
+
+                <p>Instalacja przez pip:</p>
+                <pre><code>pip install domowe-oplaty</code></pre>
+            </section>
+
+            <!-- Dodaj pozostałe sekcje -->
+        </main>
+    </div>
+</body>
+</html>
