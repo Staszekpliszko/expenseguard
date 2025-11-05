@@ -1,12 +1,162 @@
 // backend/gus.js - Integracja z API GUS (REGON)
-const soap = require('soap');
+const https = require('https');
+const { parseString } = require('xml2js');
 
-const GUS_WSDL_URL = 'https://wyszukiwarkaregon.stat.gov.pl/wsBIR/UslugaBIRzewnPubl.svc?wsdl';
-const GUS_WSDL_TEST_URL = 'https://wyszukiwarkaregontest.stat.gov.pl/wsBIR/UslugaBIRzewnPubl.svc?wsdl';
+const GUS_API_URL = 'https://wyszukiwarkaregon.stat.gov.pl/wsBIR/UslugaBIRzewnPubl.svc';
+const GUS_TEST_API_URL = 'https://wyszukiwarkaregontest.stat.gov.pl/wsBIR/UslugaBIRzewnPubl.svc';
 
-// Test API key dla środowiska testowego (można użyć 'abcde12345abcde12345')
-// W produkcji trzeba uzyskać prawdziwy klucz z GUS
+// Test API key dla środowiska testowego
 const TEST_API_KEY = 'abcde12345abcde12345';
+
+/**
+ * Wykonaj zapytanie SOAP do API GUS
+ */
+function soapRequest(url, action, body, sid = null) {
+  return new Promise((resolve, reject) => {
+    const urlObj = new URL(url);
+
+    const headers = {
+      'Content-Type': 'application/soap+xml; charset=utf-8',
+      'SOAPAction': action,
+      'Content-Length': Buffer.byteLength(body)
+    };
+
+    if (sid) {
+      headers['sid'] = sid;
+    }
+
+    const options = {
+      hostname: urlObj.hostname,
+      port: 443,
+      path: urlObj.pathname,
+      method: 'POST',
+      headers: headers
+    };
+
+    const req = https.request(options, (res) => {
+      let data = '';
+
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          resolve(data);
+        } else {
+          reject(new Error(`HTTP ${res.statusCode}: ${data}`));
+        }
+      });
+    });
+
+    req.on('error', (error) => {
+      reject(error);
+    });
+
+    req.write(body);
+    req.end();
+  });
+}
+
+/**
+ * Zaloguj się do API GUS
+ */
+async function login(apiUrl, apiKey) {
+  const soapEnvelope = `<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ns="http://CIS/BIR/PUBL/2014/07">
+  <soap:Header xmlns:wsa="http://www.w3.org/2005/08/addressing">
+    <wsa:To>${apiUrl}</wsa:To>
+    <wsa:Action>http://CIS/BIR/PUBL/2014/07/IUslugaBIRzewnPubl/Zaloguj</wsa:Action>
+  </soap:Header>
+  <soap:Body>
+    <ns:Zaloguj>
+      <ns:pKluczUzytkownika>${apiKey}</ns:pKluczUzytkownika>
+    </ns:Zaloguj>
+  </soap:Body>
+</soap:Envelope>`;
+
+  const response = await soapRequest(apiUrl, 'http://CIS/BIR/PUBL/2014/07/IUslugaBIRzewnPubl/Zaloguj', soapEnvelope);
+
+  return new Promise((resolve, reject) => {
+    parseString(response, (err, result) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+
+      try {
+        const sid = result['s:Envelope']['s:Body'][0]['ZalogujResponse'][0]['ZalogujResult'][0];
+        resolve(sid);
+      } catch (e) {
+        reject(new Error('Nie udało się wyciągnąć SID z odpowiedzi'));
+      }
+    });
+  });
+}
+
+/**
+ * Wyszukaj podmiot po NIP
+ */
+async function searchByNipSoap(apiUrl, sid, nip) {
+  const soapEnvelope = `<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ns="http://CIS/BIR/PUBL/2014/07" xmlns:dat="http://CIS/BIR/PUBL/2014/07/DataContract">
+  <soap:Header xmlns:wsa="http://www.w3.org/2005/08/addressing">
+    <wsa:To>${apiUrl}</wsa:To>
+    <wsa:Action>http://CIS/BIR/PUBL/2014/07/IUslugaBIRzewnPubl/DaneSzukajPodmioty</wsa:Action>
+  </soap:Header>
+  <soap:Body>
+    <ns:DaneSzukajPodmioty>
+      <ns:pParametryWyszukiwania>
+        <dat:Nip>${nip}</dat:Nip>
+      </ns:pParametryWyszukiwania>
+    </ns:DaneSzukajPodmioty>
+  </soap:Body>
+</soap:Envelope>`;
+
+  const response = await soapRequest(apiUrl, 'http://CIS/BIR/PUBL/2014/07/IUslugaBIRzewnPubl/DaneSzukajPodmioty', soapEnvelope, sid);
+
+  return new Promise((resolve, reject) => {
+    parseString(response, (err, result) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+
+      try {
+        const xmlData = result['s:Envelope']['s:Body'][0]['DaneSzukajPodmiotyResponse'][0]['DaneSzukajPodmiotyResult'][0];
+        resolve(xmlData);
+      } catch (e) {
+        reject(new Error('Nie udało się wyciągnąć danych z odpowiedzi'));
+      }
+    });
+  });
+}
+
+/**
+ * Wyloguj się z API GUS
+ */
+async function logout(apiUrl, sid) {
+  const soapEnvelope = `<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ns="http://CIS/BIR/PUBL/2014/07">
+  <soap:Header xmlns:wsa="http://www.w3.org/2005/08/addressing">
+    <wsa:To>${apiUrl}</wsa:To>
+    <wsa:Action>http://CIS/BIR/PUBL/2014/07/IUslugaBIRzewnPubl/Wyloguj</wsa:Action>
+  </soap:Header>
+  <soap:Body>
+    <ns:Wyloguj>
+      <ns:pIdentyfikatorSesji>${sid}</ns:pIdentyfikatorSesji>
+    </ns:Wyloguj>
+  </soap:Body>
+</soap:Envelope>`;
+
+  try {
+    await soapRequest(apiUrl, 'http://CIS/BIR/PUBL/2014/07/IUslugaBIRzewnPubl/Wyloguj', soapEnvelope, sid);
+    return true;
+  } catch (error) {
+    console.error('Błąd podczas wylogowania:', error);
+    return false;
+  }
+}
 
 /**
  * Wyszukaj firmę po NIP w bazie GUS
@@ -15,6 +165,8 @@ const TEST_API_KEY = 'abcde12345abcde12345';
  * @returns {Promise<Object|null>} - Dane firmy lub null jeśli nie znaleziono
  */
 async function searchByNip(nip, useTestEnv = false) {
+  let sid = null;
+
   try {
     // Usuń wszystkie znaki niebędące cyframi z NIP
     const cleanNip = nip.replace(/\D/g, '');
@@ -23,39 +175,21 @@ async function searchByNip(nip, useTestEnv = false) {
       throw new Error('NIP musi mieć 10 cyfr');
     }
 
-    const wsdlUrl = useTestEnv ? GUS_WSDL_TEST_URL : GUS_WSDL_URL;
-    const apiKey = TEST_API_KEY; // W przyszłości można dodać konfigurację w settings
+    const apiUrl = useTestEnv ? GUS_TEST_API_URL : GUS_API_URL;
+    const apiKey = TEST_API_KEY;
 
-    // Utwórz klienta SOAP
-    const client = await soap.createClientAsync(wsdlUrl);
+    // Zaloguj się
+    sid = await login(apiUrl, apiKey);
 
-    // Zaloguj się do API
-    const loginResult = await client.ZalogujAsync({
-      pKluczUzytkownika: apiKey
-    });
-
-    const sessionId = loginResult[0].ZalogujResult;
-
-    if (!sessionId) {
+    if (!sid) {
       throw new Error('Nie udało się zalogować do API GUS');
     }
 
-    // Ustaw nagłówek z identyfikatorem sesji
-    client.addSoapHeader({
-      'ns3:sid': sessionId
-    }, 'sid', 'ns3', 'http://www.w3.org/2005/08/addressing');
-
     // Wyszukaj po NIP
-    const searchResult = await client.DaneSzukajPodmiotyAsync({
-      pParametryWyszukiwania: `<root><Nip>${cleanNip}</Nip></root>`
-    });
-
-    const xmlResult = searchResult[0].DaneSzukajPodmiotyResult;
+    const xmlResult = await searchByNipSoap(apiUrl, sid, cleanNip);
 
     // Wyloguj się
-    await client.WylogujAsync({
-      pIdentyfikatorSesji: sessionId
-    });
+    await logout(apiUrl, sid);
 
     if (!xmlResult || xmlResult.trim() === '') {
       return null;
@@ -80,6 +214,12 @@ async function searchByNip(nip, useTestEnv = false) {
     };
 
   } catch (error) {
+    // Wyloguj się w razie błędu
+    if (sid) {
+      const apiUrl = useTestEnv ? GUS_TEST_API_URL : GUS_API_URL;
+      await logout(apiUrl, sid);
+    }
+
     console.error('Błąd podczas wyszukiwania w GUS:', error);
     throw error;
   }
