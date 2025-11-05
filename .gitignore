@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Database
+db/*.db
+db/*.db-journal
+
+# Electron
+dist/
+out/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
