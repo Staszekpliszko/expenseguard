@@ -1,0 +1,35 @@
+# UWAGA: To są przykładowe stawki odsetek ustawowych za opóźnienie w transakcjach handlowych (Art. 481 KC)
+# Stawki te są PRZYKŁADOWE i mogą nie odzwierciedlać aktualnych wartości.
+# NALEŻY ZWERYFIKOWAĆ i zaktualizować stawki zgodnie z obowiązującymi przepisami!
+#
+# Oficjalne źródła:
+# - Narodowy Bank Polski (NBP) - https://nbp.pl
+# - Dziennik Ustaw RP
+# - Portal informacyjny rządu RP
+#
+# Poniższe stawki są PRZYBLIŻONE i służą wyłącznie celom demonstracyjnym.
+# Format: valid_from,valid_to,annual_rate_percent
+valid_from,valid_to,annual_rate_percent
+2016-01-01,2016-12-31,7.00
+2017-01-01,2017-12-31,7.00
+2018-01-01,2018-12-31,7.00
+2019-01-01,2019-12-31,8.00
+2020-01-01,2020-06-30,8.00
+2020-07-01,2020-12-31,7.00
+2021-01-01,2021-12-31,7.25
+2022-01-01,2022-03-31,7.50
+2022-04-01,2022-06-30,9.50
+2022-07-01,2022-09-30,11.50
+2022-10-01,2022-12-31,13.50
+2023-01-01,2023-03-31,14.00
+2023-04-01,2023-06-30,14.50
+2023-07-01,2023-09-30,14.25
+2023-10-01,2023-12-31,13.75
+2024-01-01,2024-03-31,13.25
+2024-04-01,2024-06-30,12.75
+2024-07-01,2024-09-30,12.25
+2024-10-01,2024-12-31,11.75
+2025-01-01,2025-03-31,11.25
+2025-04-01,2025-06-30,10.75
+2025-07-01,2025-09-30,10.50
+2025-10-01,2025-12-31,10.25
