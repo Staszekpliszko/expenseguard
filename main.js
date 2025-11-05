@@ -1,6 +1,7 @@
 // main.js
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
+const fs = require('fs');
 const { runMigrations } = require('./src/backend/migrations');
 const {
   searchCounterparties,
@@ -36,6 +37,12 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  // Utwórz folder db/ jeśli nie istnieje
+  const dbDir = path.join(__dirname, 'db');
+  if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
+  }
+
   // Uruchom migracje przy starcie
   runMigrations();
 
