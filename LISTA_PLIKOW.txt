@@ -18,15 +18,23 @@ claude/analyze-python-program-011CUpUtM4SugYZCww9k4c1X
 2. pdf_to_csv.py                ← Parser PDF-ów (NAPRAWIONY!)
 3. requirements.txt             ← Lista zależności
 4. pdf_converter_gui.spec       ← Konfiguracja PyInstaller
-5. build_exe.bat                ← Automatyczny build
-6. build_exe_simple.bat         ← Prosty build
-7. README_BUILD.md              ← Instrukcja krok po kroku
+5. build_exe.bat                ← Automatyczny build (NAPRAWIONY v2!)
+6. build_exe_simple.bat         ← Prosty build (NAPRAWIONY v2!)
+7. test_environment.bat         ← Test środowiska (NOWY!)
+8. build_manual.bat             ← Build manualny (NOWY!)
+9. README_BUILD.md              ← Instrukcja krok po kroku
+
+UWAGA: Pliki .bat v2 - naprawiono błędy kodowania polskich znaków!
 
 ═══════════════════════════════════════════════════════════════════
-🚀 JAK ZBUDOWAĆ EXE? (3 KROKI)
+🚀 JAK ZBUDOWAĆ EXE? (4 KROKI)
 ═══════════════════════════════════════════════════════════════════
 
-KROK 1: Skopiuj wszystkie 7 plików do D:\MOJE\MILLENIUM CHF\
+KROK 0: Test środowiska (ZALECANE!)
+   test_environment.bat
+   ↳ Sprawdzi czy Python i wszystkie pliki są OK
+
+KROK 1: Skopiuj wszystkie 9 plików do D:\MOJE\MILLENIUM CHF\
 
 KROK 2: Otwórz Command Prompt (cmd) w tym folderze:
    - Shift + Prawy przycisk myszy na folderze
@@ -35,7 +43,11 @@ KROK 2: Otwórz Command Prompt (cmd) w tym folderze:
    - cd D:\MOJE\MILLENIUM CHF
 
 KROK 3: Uruchom build:
-   build_exe.bat
+   build_exe.bat              ← Automatyczny (z venv)
+   LUB
+   build_exe_simple.bat       ← Prosty (bez venv)
+   LUB
+   build_manual.bat           ← Manual (krok po kroku)
 
 KROK 4: Poczekaj 2-5 minut
 
@@ -45,7 +57,7 @@ GOTOWE! Plik exe będzie w: dist\PDF_Converter_Millennium_CHF.exe
 🔧 CO ZOSTAŁO NAPRAWIONE?
 ═══════════════════════════════════════════════════════════════════
 
-PROBLEM:
+PROBLEM 1: AttributeError przy uruchomieniu exe
 ❌ AttributeError: 'NoneType' object has no attribute 'buffer'
 
 ROZWIĄZANIE:
@@ -53,6 +65,19 @@ ROZWIĄZANIE:
 ✅ Przekierowanie logów do plików w exe
 ✅ Fallback do io.StringIO() w razie błędów
 ✅ Poprawki w OBUDWU plikach (gui + parser)
+
+---
+
+PROBLEM 2: Błędy kodowania w plikach .bat
+❌ 'nstalowany' is not recognized as an internal or external command
+❌ 'się' is not recognized as an internal or external command
+
+ROZWIĄZANIE:
+✅ Usunięto WSZYSTKIE polskie znaki z plików .bat
+✅ Kodowanie ASCII - działa na każdym Windows
+✅ Dodano 2 nowe skrypty pomocnicze:
+   - test_environment.bat (test środowiska)
+   - build_manual.bat (build krok po kroku)
 
 ═══════════════════════════════════════════════════════════════════
 📥 OPCJE POBRANIA
@@ -65,6 +90,8 @@ https://github.com/Staszekpliszko/expenseguard/blob/claude/analyze-python-progra
 https://github.com/Staszekpliszko/expenseguard/blob/claude/analyze-python-program-011CUpUtM4SugYZCww9k4c1X/pdf_converter_gui.spec
 https://github.com/Staszekpliszko/expenseguard/blob/claude/analyze-python-program-011CUpUtM4SugYZCww9k4c1X/build_exe.bat
 https://github.com/Staszekpliszko/expenseguard/blob/claude/analyze-python-program-011CUpUtM4SugYZCww9k4c1X/build_exe_simple.bat
+https://github.com/Staszekpliszko/expenseguard/blob/claude/analyze-python-program-011CUpUtM4SugYZCww9k4c1X/test_environment.bat
+https://github.com/Staszekpliszko/expenseguard/blob/claude/analyze-python-program-011CUpUtM4SugYZCww9k4c1X/build_manual.bat
 https://github.com/Staszekpliszko/expenseguard/blob/claude/analyze-python-program-011CUpUtM4SugYZCww9k4c1X/README_BUILD.md
 
 OPCJA B: Sklonuj całe repozytorium

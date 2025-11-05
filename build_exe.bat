@@ -1,98 +1,99 @@
 @echo off
-chcp 65001 >nul
-echo ════════════════════════════════════════════════════════════════
-echo   Build EXE - Konwerter PDF Bank Millennium CHF
-echo ════════════════════════════════════════════════════════════════
+:: PDF Converter - Build EXE Script
+:: No Polish characters for compatibility
+
+echo ================================================================
+echo   Build EXE - Bank Millennium CHF PDF Converter
+echo ================================================================
 echo.
 
-REM Sprawdź czy Python jest zainstalowany
+REM Check if Python is installed
 python --version >nul 2>&1
 if errorlevel 1 (
-    echo ❌ BŁĄD: Python nie jest zainstalowany lub nie jest w PATH
-    echo    Zainstaluj Python z: https://www.python.org/downloads/
+    echo ERROR: Python not found in PATH
+    echo Install Python from: https://www.python.org/downloads/
     pause
     exit /b 1
 )
 
-echo ✓ Python znaleziony
+echo [OK] Python found
 python --version
 echo.
 
-REM Sprawdź czy pip jest zainstalowany
+REM Check if pip is installed
 pip --version >nul 2>&1
 if errorlevel 1 (
-    echo ❌ BŁĄD: pip nie jest zainstalowany
+    echo ERROR: pip not found
     pause
     exit /b 1
 )
 
-echo ✓ pip znaleziony
+echo [OK] pip found
 echo.
 
-REM Utwórz środowisko wirtualne (opcjonalnie)
-echo [1/5] Tworzenie środowiska wirtualnego...
+REM Create virtual environment (optional)
+echo [1/5] Creating virtual environment...
 if not exist "venv" (
     python -m venv venv
-    echo    ✓ Środowisko utworzone
+    echo    [OK] Virtual environment created
 ) else (
-    echo    ✓ Środowisko już istnieje
+    echo    [OK] Virtual environment already exists
 )
 echo.
 
-REM Aktywuj środowisko
-echo [2/5] Aktywacja środowiska wirtualnego...
+REM Activate environment
+echo [2/5] Activating virtual environment...
 call venv\Scripts\activate.bat
-echo    ✓ Środowisko aktywne
+echo    [OK] Environment activated
 echo.
 
-REM Zainstaluj zależności
-echo [3/5] Instalacja zależności z requirements.txt...
+REM Install dependencies
+echo [3/5] Installing dependencies from requirements.txt...
 pip install -r requirements.txt
 if errorlevel 1 (
-    echo ❌ BŁĄD: Nie udało się zainstalować zależności
+    echo ERROR: Failed to install dependencies
     pause
     exit /b 1
 )
-echo    ✓ Zależności zainstalowane
+echo    [OK] Dependencies installed
 echo.
 
-REM Wyczyść poprzednie buildy
-echo [4/5] Czyszczenie poprzednich buildów...
+REM Clean previous builds
+echo [4/5] Cleaning previous builds...
 if exist "dist" rmdir /s /q dist
 if exist "build" rmdir /s /q build
-echo    ✓ Wyczyszczono
+echo    [OK] Cleaned
 echo.
 
 REM Build exe
-echo [5/5] Budowanie EXE z PyInstaller...
-echo    To może potrwać kilka minut...
+echo [5/5] Building EXE with PyInstaller...
+echo    This may take several minutes...
 echo.
 pyinstaller pdf_converter_gui.spec
 
 if errorlevel 1 (
     echo.
-    echo ❌ BŁĄD: Nie udało się zbudować EXE
-    echo    Sprawdź logi powyżej
+    echo ERROR: Failed to build EXE
+    echo Check the logs above
     pause
     exit /b 1
 )
 
 echo.
-echo ════════════════════════════════════════════════════════════════
-echo   ✓ BUILD ZAKOŃCZONY POMYŚLNIE!
-echo ════════════════════════════════════════════════════════════════
+echo ================================================================
+echo   BUILD COMPLETED SUCCESSFULLY!
+echo ================================================================
 echo.
-echo 📁 Plik EXE znajduje się w: dist\PDF_Converter_Millennium_CHF.exe
+echo EXE file location: dist\PDF_Converter_Millennium_CHF.exe
 echo.
-echo 🚀 URUCHOMIENIE:
-echo    1. Przejdź do folderu: dist\
-echo    2. Uruchom: PDF_Converter_Millennium_CHF.exe
-echo    3. Wybierz PDF-y do przetworzenia
+echo HOW TO RUN:
+echo    1. Go to folder: dist\
+echo    2. Run: PDF_Converter_Millennium_CHF.exe
+echo    3. Select PDF files to process
 echo.
-echo 💡 UWAGA:
-echo    - Program może być oznaczony przez antywirus jako nieznany
-echo    - To normalne dla nowo zbudowanych exe
-echo    - Dodaj do wyjątków jeśli potrzeba
+echo NOTE:
+echo    - Antivirus may flag the exe as unknown (normal for new exe)
+echo    - Add to exceptions if needed
 echo.
-echo ════════════════════════════════════════════════════════════════
+echo ================================================================
 pause

@@ -36,6 +36,18 @@ Jeśli widzisz numery wersji - wszystko OK! ✓
 
 ## 🚀 Jak zbudować EXE?
 
+### KROK 0: Test środowiska (ZALECANE)
+
+**Najpierw sprawdź czy wszystko jest OK:**
+```cmd
+cd D:\MOJE\MILLENIUM CHF
+test_environment.bat
+```
+
+Jeśli widzisz "ALL TESTS PASSED!" - możesz przejść dalej!
+
+---
+
 ### Metoda 1: Automatyczny Build (ZALECANA)
 
 1. **Skopiuj wszystkie pliki do folderu** `D:\MOJE\MILLENIUM CHF\`:
@@ -43,7 +55,10 @@ Jeśli widzisz numery wersji - wszystko OK! ✓
    - `pdf_to_csv.py` ← naprawiona wersja
    - `requirements.txt`
    - `pdf_converter_gui.spec`
-   - `build_exe.bat`
+   - `build_exe.bat` ← NAPRAWIONY (bez polskich znaków)
+   - `build_exe_simple.bat` ← NAPRAWIONY
+   - `test_environment.bat` ← NOWY!
+   - `build_manual.bat` ← NOWY!
 
 2. **Uruchom build:**
    ```cmd
@@ -70,13 +85,32 @@ build_exe_simple.bat
 
 ---
 
-### Metoda 3: Ręczny Build
+### Metoda 3: Manual Build (Krok po kroku)
+
+Jeśli automatyczne buildy nie działają:
+```cmd
+cd D:\MOJE\MILLENIUM CHF
+build_manual.bat
+```
+
+Ten skrypt pokaże Ci dokładnie każdy krok i pozwoli uruchomić komendy ręcznie.
+
+---
+
+### Metoda 4: Całkowicie ręczny Build
 
 ```cmd
 cd D:\MOJE\MILLENIUM CHF
 
+# Zainstaluj PyInstaller
+pip install pyinstaller
+
 # Zainstaluj zależności
-pip install -r requirements.txt
+pip install pdfplumber pandas openpyxl pillow pypdfium2
+
+# Wyczyść stare buildy
+rmdir /s /q dist
+rmdir /s /q build
 
 # Zbuduj exe
 pyinstaller pdf_converter_gui.spec
@@ -113,6 +147,16 @@ D:\MOJE\MILLENIUM CHF\
 ---
 
 ## 🛠️ Rozwiązywanie Problemów
+
+### Problem: Błędy kodowania w .bat ("nstalowany", "się", itp.)
+**Rozwiązanie:**
+✅ NAPRAWIONE! Wszystkie pliki .bat zostały zaktualizowane bez polskich znaków.
+
+Pobierz najnowsze wersje:
+- `build_exe.bat` (naprawiony)
+- `build_exe_simple.bat` (naprawiony)
+- `test_environment.bat` (nowy)
+- `build_manual.bat` (nowy)
 
 ### Problem: "Python nie jest rozpoznawany..."
 **Rozwiązanie:**

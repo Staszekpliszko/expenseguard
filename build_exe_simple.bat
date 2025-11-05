@@ -1,32 +1,41 @@
 @echo off
-chcp 65001 >nul
-echo ════════════════════════════════════════════════════════════════
-echo   Quick Build EXE (bez venv)
-echo ════════════════════════════════════════════════════════════════
+:: Quick Build EXE (without virtualenv)
+:: No Polish characters for compatibility
+
+echo ================================================================
+echo   Quick Build EXE (no venv)
+echo ================================================================
 echo.
 
-REM Instaluj zależności globalnie
-echo [1/3] Instalacja zależności...
+REM Install dependencies globally
+echo [1/3] Installing dependencies...
 pip install -r requirements.txt
+if errorlevel 1 (
+    echo ERROR: Failed to install dependencies
+    pause
+    exit /b 1
+)
 echo.
 
-REM Wyczyść poprzednie buildy
-echo [2/3] Czyszczenie...
+REM Clean previous builds
+echo [2/3] Cleaning previous builds...
 if exist "dist" rmdir /s /q dist
 if exist "build" rmdir /s /q build
 echo.
 
 REM Build
-echo [3/3] Budowanie EXE...
+echo [3/3] Building EXE...
 pyinstaller pdf_converter_gui.spec
 
 if errorlevel 1 (
-    echo ❌ BŁĄD podczas budowania
+    echo ERROR: Build failed
     pause
     exit /b 1
 )
 
 echo.
-echo ✓ GOTOWE! Plik: dist\PDF_Converter_Millennium_CHF.exe
+echo ================================================================
+echo   SUCCESS! File: dist\PDF_Converter_Millennium_CHF.exe
+echo ================================================================
 echo.
 pause
