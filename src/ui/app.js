@@ -7,6 +7,32 @@ function AddCounterpartyModal({ type, onClose, onAdded }) {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
+  const [isSearchingGus, setIsSearchingGus] = useState(false);
+
+  const handleSearchGus = async () => {
+    if (!vatId) {
+      alert('Wprowadź NIP przed wyszukiwaniem');
+      return;
+    }
+
+    setIsSearchingGus(true);
+    try {
+      const result = await window.api.searchGus(vatId, true); // true = środowisko testowe
+
+      if (result) {
+        setName(result.name);
+        setAddress(result.address);
+        alert('Znaleziono firmę w bazie GUS!');
+      } else {
+        alert('Nie znaleziono firmy o podanym NIP w bazie GUS');
+      }
+    } catch (error) {
+      console.error('Błąd wyszukiwania GUS:', error);
+      alert('Błąd podczas wyszukiwania w GUS: ' + error.message);
+    } finally {
+      setIsSearchingGus(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -14,17 +40,22 @@ function AddCounterpartyModal({ type, onClose, onAdded }) {
       alert('Nazwa jest wymagana');
       return;
     }
-    const id = await window.api.addCounterparty({
-      type,
-      name,
-      vat_id: vatId || null,
-      email: email || null,
-      phone: phone || null,
-      address: address || null
-    });
-    alert('Dodano pomyślnie!');
-    onAdded({ id, name, vat_id: vatId });
-    onClose();
+    try {
+      const id = await window.api.addCounterparty({
+        type,
+        name,
+        vat_id: vatId || null,
+        email: email || null,
+        phone: phone || null,
+        address: address || null
+      });
+      alert('Dodano pomyślnie!');
+      onAdded({ id, name, vat_id: vatId });
+      onClose();
+    } catch (error) {
+      console.error('Błąd dodawania klienta:', error);
+      alert('Błąd podczas dodawania: ' + error.message);
+    }
   };
 
   return (
@@ -63,12 +94,24 @@ function AddCounterpartyModal({ type, onClose, onAdded }) {
           </div>
           <div className="form-group">
             <label className="form-label">NIP</label>
-            <input
-              type="text"
-              className="form-input"
-              value={vatId}
-              onChange={e => setVatId(e.target.value)}
-            />
+            <div className="flex" style={{ gap: '5px' }}>
+              <input
+                type="text"
+                className="form-input"
+                value={vatId}
+                onChange={e => setVatId(e.target.value)}
+                style={{ flex: 1 }}
+              />
+              <button
+                type="button"
+                className="btn btn-secondary btn-small"
+                onClick={handleSearchGus}
+                disabled={isSearchingGus}
+                style={{ padding: '10px 15px', whiteSpace: 'nowrap' }}
+              >
+                {isSearchingGus ? 'Szukam...' : 'Wyszukaj w GUS'}
+              </button>
+            </div>
           </div>
           <div className="form-group">
             <label className="form-label">Email</label>

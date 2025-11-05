@@ -14,6 +14,7 @@ const {
   updateSetting
 } = require('./src/backend/invoices');
 const { monthlySummary } = require('./src/backend/taxes');
+const { searchByNip } = require('./src/backend/gus');
 
 let mainWindow;
 
@@ -96,4 +97,13 @@ ipcMain.handle('getSettings', async () => {
 
 ipcMain.handle('updateSetting', async (_e, {key, value}) => {
   return await updateSetting(key, value);
+});
+
+ipcMain.handle('searchGus', async (_e, { nip, useTestEnv }) => {
+  try {
+    return await searchByNip(nip, useTestEnv);
+  } catch (error) {
+    console.error('Błąd wyszukiwania GUS:', error);
+    throw error;
+  }
 });

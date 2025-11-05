@@ -6,6 +6,7 @@ Program do obliczania przychodów i VAT dla małych firm i freelancerów.
 
 - **Faktury sprzedażowe** - zarządzanie fakturami przychodowymi z autouzupełnianiem klientów
 - **Faktury kosztowe** - zarządzanie fakturami kosztowymi z konfigurowalnością odliczania VAT
+- **Wyszukiwanie w bazie GUS** - automatyczne uzupełnianie danych firmy na podstawie NIP
 - **Podsumowania podatkowe** - automatyczne obliczanie VAT, CIT/PIT, ZUS i kwoty "na rękę"
 - **Ustawienia** - konfiguracja stawek VAT, CIT, ZUS i innych parametrów
 
@@ -28,6 +29,15 @@ npm start
 npm run dev
 ```
 
+## Jak używać wyszukiwania GUS
+
+Przy dodawaniu nowego klienta lub dostawcy:
+1. Wpisz NIP firmy w pole "NIP"
+2. Kliknij przycisk "Wyszukaj w GUS"
+3. Jeśli firma zostanie znaleziona, pola Nazwa i Adres zostaną automatycznie wypełnione danymi z bazy GUS
+
+**Uwaga:** Domyślnie aplikacja używa testowego API GUS. Aby używać produkcyjnego API, potrzebujesz klucza API z GUS, który można uzyskać na stronie https://api.stat.gov.pl/Home/RegonApi
+
 ## Struktura projektu
 
 ```
@@ -40,7 +50,8 @@ npm run dev
 │   │   ├── migrations.js
 │   │   ├── database.js
 │   │   ├── taxes.js
-│   │   └── invoices.js
+│   │   ├── invoices.js
+│   │   └── gus.js       # Integracja z API GUS (REGON)
 │   └── ui/              # Interfejs użytkownika (React)
 │       ├── index.html
 │       └── app.js

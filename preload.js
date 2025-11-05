@@ -10,5 +10,6 @@ contextBridge.exposeInMainWorld('api', {
   addPurchaseInvoice: (data) => ipcRenderer.invoke('addPurchaseInvoice', data),
   monthlySummary: (year, month) => ipcRenderer.invoke('monthlySummary', {year, month}),
   getSettings: () => ipcRenderer.invoke('getSettings'),
-  updateSetting: (key, value) => ipcRenderer.invoke('updateSetting', {key, value})
+  updateSetting: (key, value) => ipcRenderer.invoke('updateSetting', {key, value}),
+  searchGus: (nip, useTestEnv) => ipcRenderer.invoke('searchGus', {nip, useTestEnv})
 });

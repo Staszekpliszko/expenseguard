@@ -8,7 +8,12 @@
     "dev": "electron . --dev",
     "build": "electron-builder"
   },
-  "keywords": ["electron", "faktury", "vat", "księgowość"],
+  "keywords": [
+    "electron",
+    "faktury",
+    "vat",
+    "księgowość"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
@@ -21,6 +26,7 @@
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "soap": "^1.6.0",
     "sqlite3": "^5.1.6",
     "xlsx": "^0.18.5"
   }

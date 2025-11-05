@@ -18,11 +18,33 @@ function searchCounterparties(type, query) {
 function addCounterparty({ type, name, vat_id, email, phone, address }) {
   const db = getDb();
   return new Promise((resolve, reject) => {
-    db.run(
-      `INSERT OR IGNORE INTO counterparties(type, name, vat_id, email, phone, address)
-       VALUES (?,?,?,?,?,?)`,
-      [type, name, vat_id || null, email || null, phone || null, address || null],
-      function(err) { db.close(); err ? reject(err) : resolve(this.lastID); }
+    // Najpierw sprawdź, czy klient o tej nazwie i typie już istnieje
+    db.get(
+      `SELECT id FROM counterparties WHERE type=? AND name=?`,
+      [type, name],
+      (err, row) => {
+        if (err) {
+          db.close();
+          return reject(err);
+        }
+
+        // Jeśli istnieje, zwróć jego ID
+        if (row) {
+          db.close();
+          return resolve(row.id);
+        }
+
+        // Jeśli nie istnieje, dodaj nowego klienta
+        db.run(
+          `INSERT INTO counterparties(type, name, vat_id, email, phone, address)
+           VALUES (?,?,?,?,?,?)`,
+          [type, name, vat_id || null, email || null, phone || null, address || null],
+          function(err) {
+            db.close();
+            err ? reject(err) : resolve(this.lastID);
+          }
+        );
+      }
     );
   });
 }
