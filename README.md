@@ -1,18 +1,62 @@
 # Interest Calculator - Kalkulator Odsetek Ustawowych Za Opóźnienie
 
-**Produkcyjnej jakości narzędzie CLI w Pythonie** do obliczania odsetek ustawowych za opóźnienie (Art. 481 KC) dla spraw frankowych (CHF/PLN).
+**Produkcyjnej jakości narzędzie CLI + GUI w Pythonie** do obliczania odsetek ustawowych za opóźnienie (Art. 481 KC) dla spraw frankowych (CHF/PLN).
+
+💻 **Dwa interfejsy:** Profesjonalny GUI (Streamlit) + Zaawansowany CLI (Typer)
 
 ## 📋 Spis treści
 
+- [🖥️ GUI - Interfejs graficzny](#gui---interfejs-graficzny)
 - [Funkcjonalności](#funkcjonalności)
 - [Wymagania](#wymagania)
 - [Instalacja](#instalacja)
 - [Użycie](#użycie)
+  - [GUI (Streamlit)](#gui-streamlit)
+  - [CLI (Terminal)](#cli-terminal)
 - [Przykłady](#przykłady)
 - [Struktura projektu](#struktura-projektu)
 - [Formaty plików](#formaty-plików)
 - [Rozwój i testy](#rozwój-i-testy)
 - [Uwagi prawne](#uwagi-prawne)
+
+## 🖥️ GUI - Interfejs graficzny
+
+**NOWE!** Profesjonalny interfejs graficzny zbudowany na Streamlit.
+
+### Szybki start - GUI
+
+```bash
+# Zainstaluj zależności
+pip install -e .
+
+# Uruchom GUI
+streamlit run streamlit_app.py
+```
+
+Aplikacja otworzy się automatycznie w przeglądarce na `http://localhost:8501`
+
+### Zrzuty ekranu i funkcje GUI
+
+![GUI Screenshot](https://via.placeholder.com/800x400?text=Professional+Calculator+GUI)
+
+**Funkcje GUI:**
+- ✅ **Intuicyjny formularz** - łatwe wprowadzanie danych
+- ✅ **Upload plików** - przeciągnij i upuść CSV
+- ✅ **Interaktywne tabele** - przejrzyste wyniki
+- ✅ **Pobieranie raportów** - CSV i XLSX jednym kliknięciem
+- ✅ **Responsywny design** - działa na każdym urządzeniu
+- ✅ **3 zakładki:**
+  - 📊 **Kalkulator** - główny interfejs obliczeń
+  - 📖 **Instrukcja** - jak przygotować pliki danych
+  - ℹ️ **O narzędziu** - informacje i disclaimer
+
+**Interfejs zawiera:**
+- Formularz z walidacją danych w czasie rzeczywistym
+- Podsumowanie wyników w przejrzystych metrykach
+- Szczegółową tabelę segmentów obliczeń
+- Przyciski do pobrania raportów CSV/XLSX
+- Ostrzeżenia prawne i disclaimery
+- Sidebar z pomocą i informacjami
 
 ## ✨ Funkcjonalności
 
@@ -25,7 +69,8 @@
 - ✅ **Czytelne podsumowanie** w terminalu z kolorowym formatowaniem
 - ✅ **Type hints i Pydantic** - pełna typizacja i walidacja
 - ✅ **Testy jednostkowe** z pytest
-- ✅ **Profesjonalny CLI** zbudowany na Typer
+- ✅ **Profesjonalny GUI** zbudowany na Streamlit
+- ✅ **Zaawansowany CLI** zbudowany na Typer
 
 ## 📦 Wymagania
 
@@ -60,7 +105,27 @@ interest-calc --help
 
 ## 💻 Użycie
 
-### Podstawowa komenda
+### GUI (Streamlit)
+
+**Rekomendowane dla większości użytkowników** - łatwy w użyciu interfejs graficzny.
+
+```bash
+# Uruchom aplikację GUI
+streamlit run streamlit_app.py
+```
+
+Następnie:
+1. Otwórz przeglądarkę na `http://localhost:8501`
+2. Wypełnij formularz
+3. Prześlij pliki CSV (stawki i opcjonalnie przepływy)
+4. Kliknij "OBLICZ ODSETKI"
+5. Pobierz raport CSV lub XLSX
+
+### CLI (Terminal)
+
+**Dla zaawansowanych użytkowników** - pełna kontrola przez wiersz poleceń.
+
+#### Podstawowa komenda
 
 ```bash
 interest-calc calc \
@@ -132,6 +197,7 @@ interest-calc validate interest_calc/data/rates_example.csv
 
 ```
 expenseguard/
+├── streamlit_app.py          # ⭐ GUI (Streamlit) - NOWY!
 ├── interest_calc/
 │   ├── __init__.py           # Inicjalizacja pakietu
 │   ├── main.py               # CLI (Typer)
@@ -149,6 +215,7 @@ expenseguard/
 │       └── test_cli.py       # Testy CLI
 ├── reports/                  # Katalog na wygenerowane raporty
 ├── pyproject.toml            # Konfiguracja projektu
+├── .gitignore                # Wykluczenia Git
 └── README.md                 # Ten plik
 ```
 
