@@ -33,6 +33,12 @@ function soapRequest(url, action, body, sid = null) {
       headers: headers
     };
 
+    console.log('=== GUS API Request ===');
+    console.log('URL:', url);
+    console.log('Action:', action);
+    console.log('Headers:', headers);
+    console.log('Body:', body);
+
     const req = https.request(options, (res) => {
       let data = '';
 
@@ -41,15 +47,22 @@ function soapRequest(url, action, body, sid = null) {
       });
 
       res.on('end', () => {
+        console.log('=== GUS API Response ===');
+        console.log('Status:', res.statusCode);
+        console.log('Headers:', res.headers);
+        console.log('Body (first 500 chars):', data.substring(0, 500));
+
         if (res.statusCode >= 200 && res.statusCode < 300) {
           resolve(data);
         } else {
-          reject(new Error(`HTTP ${res.statusCode}: ${data}`));
+          reject(new Error(`HTTP ${res.statusCode}: ${data.substring(0, 200)}`));
         }
       });
     });
 
     req.on('error', (error) => {
+      console.error('=== GUS API Error ===');
+      console.error(error);
       reject(error);
     });
 
@@ -77,17 +90,28 @@ async function login(apiUrl, apiKey) {
 
   const response = await soapRequest(apiUrl, 'http://CIS/BIR/PUBL/2014/07/IUslugaBIRzewnPubl/Zaloguj', soapEnvelope);
 
+  // Sprawdź czy odpowiedź to XML
+  if (!response.trim().startsWith('<?xml') && !response.trim().startsWith('<')) {
+    throw new Error(`Odpowiedź nie jest XML-em: ${response.substring(0, 100)}`);
+  }
+
   return new Promise((resolve, reject) => {
     parseString(response, (err, result) => {
       if (err) {
-        reject(err);
+        console.error('Błąd parsowania XML:', err);
+        console.error('Odpowiedź:', response.substring(0, 500));
+        reject(new Error(`Błąd parsowania XML: ${err.message}`));
         return;
       }
 
       try {
+        console.log('Parsed result:', JSON.stringify(result, null, 2));
         const sid = result['s:Envelope']['s:Body'][0]['ZalogujResponse'][0]['ZalogujResult'][0];
+        console.log('Session ID:', sid);
         resolve(sid);
       } catch (e) {
+        console.error('Błąd wyciągania SID:', e);
+        console.error('Parsed result:', JSON.stringify(result, null, 2));
         reject(new Error('Nie udało się wyciągnąć SID z odpowiedzi'));
       }
     });
@@ -115,17 +139,28 @@ async function searchByNipSoap(apiUrl, sid, nip) {
 
   const response = await soapRequest(apiUrl, 'http://CIS/BIR/PUBL/2014/07/IUslugaBIRzewnPubl/DaneSzukajPodmioty', soapEnvelope, sid);
 
+  // Sprawdź czy odpowiedź to XML
+  if (!response.trim().startsWith('<?xml') && !response.trim().startsWith('<')) {
+    throw new Error(`Odpowiedź nie jest XML-em: ${response.substring(0, 100)}`);
+  }
+
   return new Promise((resolve, reject) => {
     parseString(response, (err, result) => {
       if (err) {
-        reject(err);
+        console.error('Błąd parsowania XML (search):', err);
+        console.error('Odpowiedź:', response.substring(0, 500));
+        reject(new Error(`Błąd parsowania XML: ${err.message}`));
         return;
       }
 
       try {
+        console.log('Parsed search result:', JSON.stringify(result, null, 2));
         const xmlData = result['s:Envelope']['s:Body'][0]['DaneSzukajPodmiotyResponse'][0]['DaneSzukajPodmiotyResult'][0];
+        console.log('XML Data:', xmlData);
         resolve(xmlData);
       } catch (e) {
+        console.error('Błąd wyciągania danych:', e);
+        console.error('Parsed result:', JSON.stringify(result, null, 2));
         reject(new Error('Nie udało się wyciągnąć danych z odpowiedzi'));
       }
     });
