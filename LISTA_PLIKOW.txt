@@ -1,0 +1,105 @@
+═══════════════════════════════════════════════════════════════════
+  KONWERTER PDF BANK MILLENNIUM CHF - PLIKI DO SKOPIOWANIA
+═══════════════════════════════════════════════════════════════════
+
+✅ WSZYSTKIE PLIKI GOTOWE!
+
+Repozytorium GitHub:
+https://github.com/Staszekpliszko/expenseguard
+
+Branch:
+claude/analyze-python-program-011CUpUtM4SugYZCww9k4c1X
+
+═══════════════════════════════════════════════════════════════════
+📦 PLIKI DO SKOPIOWANIA DO: D:\MOJE\MILLENIUM CHF\
+═══════════════════════════════════════════════════════════════════
+
+1. pdf_converter_gui.py         ← Główny program GUI (NAPRAWIONY!)
+2. pdf_to_csv.py                ← Parser PDF-ów (NAPRAWIONY!)
+3. requirements.txt             ← Lista zależności
+4. pdf_converter_gui.spec       ← Konfiguracja PyInstaller
+5. build_exe.bat                ← Automatyczny build
+6. build_exe_simple.bat         ← Prosty build
+7. README_BUILD.md              ← Instrukcja krok po kroku
+
+═══════════════════════════════════════════════════════════════════
+🚀 JAK ZBUDOWAĆ EXE? (3 KROKI)
+═══════════════════════════════════════════════════════════════════
+
+KROK 1: Skopiuj wszystkie 7 plików do D:\MOJE\MILLENIUM CHF\
+
+KROK 2: Otwórz Command Prompt (cmd) w tym folderze:
+   - Shift + Prawy przycisk myszy na folderze
+   - "Otwórz okno wiersza polecenia tutaj"
+   lub
+   - cd D:\MOJE\MILLENIUM CHF
+
+KROK 3: Uruchom build:
+   build_exe.bat
+
+KROK 4: Poczekaj 2-5 minut
+
+GOTOWE! Plik exe będzie w: dist\PDF_Converter_Millennium_CHF.exe
+
+═══════════════════════════════════════════════════════════════════
+🔧 CO ZOSTAŁO NAPRAWIONE?
+═══════════════════════════════════════════════════════════════════
+
+PROBLEM:
+❌ AttributeError: 'NoneType' object has no attribute 'buffer'
+
+ROZWIĄZANIE:
+✅ Dodano sprawdzanie czy sys.stdout/stderr istnieją
+✅ Przekierowanie logów do plików w exe
+✅ Fallback do io.StringIO() w razie błędów
+✅ Poprawki w OBUDWU plikach (gui + parser)
+
+═══════════════════════════════════════════════════════════════════
+📥 OPCJE POBRANIA
+═══════════════════════════════════════════════════════════════════
+
+OPCJA A: Bezpośrednie linki do plików na GitHub
+https://github.com/Staszekpliszko/expenseguard/blob/claude/analyze-python-program-011CUpUtM4SugYZCww9k4c1X/pdf_converter_gui.py
+https://github.com/Staszekpliszko/expenseguard/blob/claude/analyze-python-program-011CUpUtM4SugYZCww9k4c1X/pdf_to_csv.py
+https://github.com/Staszekpliszko/expenseguard/blob/claude/analyze-python-program-011CUpUtM4SugYZCww9k4c1X/requirements.txt
+https://github.com/Staszekpliszko/expenseguard/blob/claude/analyze-python-program-011CUpUtM4SugYZCww9k4c1X/pdf_converter_gui.spec
+https://github.com/Staszekpliszko/expenseguard/blob/claude/analyze-python-program-011CUpUtM4SugYZCww9k4c1X/build_exe.bat
+https://github.com/Staszekpliszko/expenseguard/blob/claude/analyze-python-program-011CUpUtM4SugYZCww9k4c1X/build_exe_simple.bat
+https://github.com/Staszekpliszko/expenseguard/blob/claude/analyze-python-program-011CUpUtM4SugYZCww9k4c1X/README_BUILD.md
+
+OPCJA B: Sklonuj całe repozytorium
+git clone -b claude/analyze-python-program-011CUpUtM4SugYZCww9k4c1X https://github.com/Staszekpliszko/expenseguard
+
+OPCJA C: Pobierz jako ZIP
+https://github.com/Staszekpliszko/expenseguard/archive/refs/heads/claude/analyze-python-program-011CUpUtM4SugYZCww9k4c1X.zip
+
+═══════════════════════════════════════════════════════════════════
+❓ PROBLEMY?
+═══════════════════════════════════════════════════════════════════
+
+1. Python nie zainstalowany?
+   → https://www.python.org/downloads/
+   → ZAZNACZ: "Add Python to PATH"
+
+2. Build nie działa?
+   → Przeczytaj README_BUILD.md - sekcja "Rozwiązywanie Problemów"
+   → Sprawdź czy pip działa: pip --version
+
+3. Exe się nie uruchamia?
+   → Sprawdź logi: app_stdout.log, app_stderr.log
+
+═══════════════════════════════════════════════════════════════════
+✨ GOTOWE DO UŻYCIA!
+═══════════════════════════════════════════════════════════════════
+
+Po zbudowaniu exe:
+✓ Nie potrzebujesz już Pythona do uruchomienia
+✓ Możesz skopiować exe na inne komputery
+✓ Program działa offline (bez internetu)
+✓ Przetwarza PDF-y lokalnie (bezpiecznie)
+
+═══════════════════════════════════════════════════════════════════
+Autor poprawek: Claude AI
+Data: 2025-11-05
+Wersja: 1.1 (fixed sys.stdout for exe)
+═══════════════════════════════════════════════════════════════════
