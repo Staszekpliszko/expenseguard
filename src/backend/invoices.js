@@ -107,6 +107,64 @@ function addSalesInvoice({ number, counterparty_id, issue_date, due_date, link_u
   });
 }
 
+// Pobierz wszystkich kontrahentów danego typu
+function getAllCounterparties(type) {
+  const db = getDb();
+  return new Promise((resolve, reject) => {
+    db.all(
+      `SELECT * FROM counterparties WHERE type=? ORDER BY name ASC`,
+      [type],
+      (err, rows) => { db.close(); err ? reject(err) : resolve(rows); }
+    );
+  });
+}
+
+// Aktualizuj kontrahenta
+function updateCounterparty(id, { name, vat_id, email, phone, address }) {
+  const db = getDb();
+  return new Promise((resolve, reject) => {
+    db.run(
+      `UPDATE counterparties SET name=?, vat_id=?, email=?, phone=?, address=? WHERE id=?`,
+      [name, vat_id || null, email || null, phone || null, address || null, id],
+      function(err) { db.close(); err ? reject(err) : resolve(this.changes); }
+    );
+  });
+}
+
+// Usuń kontrahenta
+function deleteCounterparty(id) {
+  const db = getDb();
+  return new Promise((resolve, reject) => {
+    // Sprawdź czy kontrahent jest używany w fakturach
+    db.get(
+      `SELECT COUNT(*) as count FROM (
+        SELECT 1 FROM sales_invoices WHERE counterparty_id=?
+        UNION ALL
+        SELECT 1 FROM purchase_invoices WHERE counterparty_id=?
+      )`,
+      [id, id],
+      (err, row) => {
+        if (err) {
+          db.close();
+          return reject(err);
+        }
+
+        if (row.count > 0) {
+          db.close();
+          return reject(new Error('Nie można usunąć kontrahenta - jest używany w fakturach'));
+        }
+
+        // Jeśli nie jest używany, usuń
+        db.run(
+          `DELETE FROM counterparties WHERE id=?`,
+          [id],
+          function(err) { db.close(); err ? reject(err) : resolve(this.changes); }
+        );
+      }
+    );
+  });
+}
+
 // Dodaj fakturę kosztową
 function addPurchaseInvoice({ number, counterparty_id, issue_date, due_date, link_url, deductible_vat, deductible_percent, status, category, note, items }) {
   const db = getDb();
@@ -164,6 +222,9 @@ function updateSetting(key, value) {
 module.exports = {
   searchCounterparties,
   addCounterparty,
+  getAllCounterparties,
+  updateCounterparty,
+  deleteCounterparty,
   getAllSalesInvoices,
   getAllPurchaseInvoices,
   addSalesInvoice,

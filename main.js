@@ -6,6 +6,9 @@ const { runMigrations } = require('./src/backend/migrations');
 const {
   searchCounterparties,
   addCounterparty,
+  getAllCounterparties,
+  updateCounterparty,
+  deleteCounterparty,
   getAllSalesInvoices,
   getAllPurchaseInvoices,
   addSalesInvoice,
@@ -69,6 +72,18 @@ ipcMain.handle('searchCounterparties', async (_e, {type, q}) => {
 
 ipcMain.handle('addCounterparty', async (_e, data) => {
   return await addCounterparty(data);
+});
+
+ipcMain.handle('getAllCounterparties', async (_e, { type }) => {
+  return await getAllCounterparties(type);
+});
+
+ipcMain.handle('updateCounterparty', async (_e, { id, data }) => {
+  return await updateCounterparty(id, data);
+});
+
+ipcMain.handle('deleteCounterparty', async (_e, { id }) => {
+  return await deleteCounterparty(id);
 });
 
 ipcMain.handle('getAllSalesInvoices', async () => {

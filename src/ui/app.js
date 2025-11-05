@@ -807,6 +807,341 @@ function PurchaseInvoiceForm({ onSaved }) {
   );
 }
 
+// Modal do edycji kontrahenta
+function EditCounterpartyModal({ counterparty, onClose, onUpdated }) {
+  const [name, setName] = useState(counterparty.name);
+  const [vatId, setVatId] = useState(counterparty.vat_id || '');
+  const [email, setEmail] = useState(counterparty.email || '');
+  const [phone, setPhone] = useState(counterparty.phone || '');
+  const [address, setAddress] = useState(counterparty.address || '');
+  const [isSearchingGus, setIsSearchingGus] = useState(false);
+
+  const handleSearchGus = async () => {
+    if (!vatId) {
+      alert('Wprowadź NIP przed wyszukiwaniem');
+      return;
+    }
+
+    setIsSearchingGus(true);
+    try {
+      const result = await window.api.searchGus(vatId, true);
+
+      if (result) {
+        setName(result.name);
+        setAddress(result.address);
+        alert('Znaleziono firmę w bazie GUS!');
+      } else {
+        alert('Nie znaleziono firmy o podanym NIP w bazie GUS');
+      }
+    } catch (error) {
+      console.error('Błąd wyszukiwania GUS:', error);
+      alert('Błąd podczas wyszukiwania w GUS: ' + error.message);
+    } finally {
+      setIsSearchingGus(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!name) {
+      alert('Nazwa jest wymagana');
+      return;
+    }
+    try {
+      await window.api.updateCounterparty(counterparty.id, {
+        name,
+        vat_id: vatId || null,
+        email: email || null,
+        phone: phone || null,
+        address: address || null
+      });
+      alert('Zaktualizowano pomyślnie!');
+      onUpdated();
+      onClose();
+    } catch (error) {
+      console.error('Błąd aktualizacji kontrahenta:', error);
+      alert('Błąd podczas aktualizacji: ' + error.message);
+    }
+  };
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'rgba(0,0,0,0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 9999
+    }}>
+      <div style={{
+        background: 'white',
+        padding: '30px',
+        borderRadius: '8px',
+        width: '500px',
+        maxWidth: '90%'
+      }}>
+        <h3 style={{ marginBottom: '20px' }}>
+          Edytuj {counterparty.type === 'client' ? 'klienta' : 'dostawcę'}
+        </h3>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="form-label">Nazwa *</label>
+            <input
+              type="text"
+              className="form-input"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">NIP</label>
+            <div className="flex" style={{ gap: '5px' }}>
+              <input
+                type="text"
+                className="form-input"
+                value={vatId}
+                onChange={e => setVatId(e.target.value)}
+                style={{ flex: 1 }}
+              />
+              <button
+                type="button"
+                className="btn btn-secondary btn-small"
+                onClick={handleSearchGus}
+                disabled={isSearchingGus}
+                style={{ padding: '10px 15px', whiteSpace: 'nowrap' }}
+              >
+                {isSearchingGus ? 'Szukam...' : 'Wyszukaj w GUS'}
+              </button>
+            </div>
+          </div>
+          <div className="form-group">
+            <label className="form-label">Email</label>
+            <input
+              type="email"
+              className="form-input"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Telefon</label>
+            <input
+              type="text"
+              className="form-input"
+              value={phone}
+              onChange={e => setPhone(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Adres</label>
+            <textarea
+              className="form-input"
+              value={address}
+              onChange={e => setAddress(e.target.value)}
+              rows="2"
+            />
+          </div>
+          <div className="flex flex-end" style={{ gap: '10px', marginTop: '20px' }}>
+            <button type="button" className="btn btn-secondary" onClick={onClose}>
+              Anuluj
+            </button>
+            <button type="submit" className="btn btn-primary">
+              Zapisz
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// Komponent zakładki: Kontrahenci
+function Counterparties() {
+  const [activeSubTab, setActiveSubTab] = useState('clients');
+  const [clients, setClients] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingCounterparty, setEditingCounterparty] = useState(null);
+
+  const loadClients = async () => {
+    const data = await window.api.getAllCounterparties('client');
+    setClients(data);
+  };
+
+  const loadSuppliers = async () => {
+    const data = await window.api.getAllCounterparties('supplier');
+    setSuppliers(data);
+  };
+
+  useEffect(() => {
+    loadClients();
+    loadSuppliers();
+  }, []);
+
+  const handleDelete = async (id, type) => {
+    if (!confirm('Czy na pewno chcesz usunąć tego kontrahenta?')) {
+      return;
+    }
+
+    try {
+      await window.api.deleteCounterparty(id);
+      alert('Usunięto pomyślnie!');
+      if (type === 'client') {
+        loadClients();
+      } else {
+        loadSuppliers();
+      }
+    } catch (error) {
+      alert('Błąd podczas usuwania: ' + error.message);
+    }
+  };
+
+  const handleEdit = (counterparty) => {
+    setEditingCounterparty(counterparty);
+    setShowEditModal(true);
+  };
+
+  const handleAddNew = () => {
+    setShowAddModal(true);
+  };
+
+  const renderTable = (data, type) => {
+    return (
+      <table className="table">
+        <thead>
+          <tr>
+            <th>Nazwa</th>
+            <th>NIP</th>
+            <th>Email</th>
+            <th>Telefon</th>
+            <th>Adres</th>
+            <th>Akcje</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map(item => (
+            <tr key={item.id}>
+              <td>{item.name}</td>
+              <td>{item.vat_id || '-'}</td>
+              <td>{item.email || '-'}</td>
+              <td>{item.phone || '-'}</td>
+              <td>{item.address || '-'}</td>
+              <td>
+                <div className="flex" style={{ gap: '5px' }}>
+                  <button
+                    className="btn btn-secondary btn-small"
+                    onClick={() => handleEdit(item)}
+                  >
+                    Edytuj
+                  </button>
+                  <button
+                    className="btn btn-secondary btn-small"
+                    onClick={() => handleDelete(item.id, type)}
+                    style={{ color: '#dc2626' }}
+                  >
+                    Usuń
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+          {data.length === 0 && (
+            <tr>
+              <td colSpan="6" style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
+                Brak {type === 'client' ? 'klientów' : 'dostawców'}
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    );
+  };
+
+  return (
+    <div>
+      <div className="flex" style={{ justifyContent: 'space-between', marginBottom: '20px' }}>
+        <h2 className="section-title">Kontrahenci</h2>
+        <button className="btn btn-primary" onClick={handleAddNew}>
+          Dodaj nowego
+        </button>
+      </div>
+
+      {/* Sub-tabs */}
+      <div style={{ marginBottom: '20px', borderBottom: '2px solid #e5e7eb' }}>
+        <div className="flex" style={{ gap: '20px' }}>
+          <div
+            style={{
+              padding: '10px 20px',
+              cursor: 'pointer',
+              borderBottom: activeSubTab === 'clients' ? '3px solid #2563eb' : 'none',
+              color: activeSubTab === 'clients' ? '#2563eb' : '#6b7280',
+              fontWeight: activeSubTab === 'clients' ? 'bold' : 'normal'
+            }}
+            onClick={() => setActiveSubTab('clients')}
+          >
+            Sprzedawcy (Klienci) ({clients.length})
+          </div>
+          <div
+            style={{
+              padding: '10px 20px',
+              cursor: 'pointer',
+              borderBottom: activeSubTab === 'suppliers' ? '3px solid #2563eb' : 'none',
+              color: activeSubTab === 'suppliers' ? '#2563eb' : '#6b7280',
+              fontWeight: activeSubTab === 'suppliers' ? 'bold' : 'normal'
+            }}
+            onClick={() => setActiveSubTab('suppliers')}
+          >
+            Nabywcy (Dostawcy) ({suppliers.length})
+          </div>
+        </div>
+      </div>
+
+      <div className="card">
+        {activeSubTab === 'clients' && renderTable(clients, 'client')}
+        {activeSubTab === 'suppliers' && renderTable(suppliers, 'supplier')}
+      </div>
+
+      {showAddModal && (
+        <AddCounterpartyModal
+          type={activeSubTab === 'clients' ? 'client' : 'supplier'}
+          onClose={() => setShowAddModal(false)}
+          onAdded={() => {
+            setShowAddModal(false);
+            if (activeSubTab === 'clients') {
+              loadClients();
+            } else {
+              loadSuppliers();
+            }
+          }}
+        />
+      )}
+
+      {showEditModal && editingCounterparty && (
+        <EditCounterpartyModal
+          counterparty={editingCounterparty}
+          onClose={() => {
+            setShowEditModal(false);
+            setEditingCounterparty(null);
+          }}
+          onUpdated={() => {
+            if (editingCounterparty.type === 'client') {
+              loadClients();
+            } else {
+              loadSuppliers();
+            }
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
 // Komponent zakładki: Ustawienia
 function Settings() {
   const [settings, setSettings] = useState({});
@@ -931,6 +1266,12 @@ function App() {
           Faktury - Kosztowe
         </div>
         <div
+          className={`nav-item ${activeTab === 'counterparties' ? 'active' : ''}`}
+          onClick={() => setActiveTab('counterparties')}
+        >
+          Kontrahenci
+        </div>
+        <div
           className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`}
           onClick={() => setActiveTab('settings')}
         >
@@ -941,6 +1282,7 @@ function App() {
         {activeTab === 'taxes' && <TaxesMonthly />}
         {activeTab === 'sales' && <SalesInvoices />}
         {activeTab === 'purchase' && <PurchaseInvoices />}
+        {activeTab === 'counterparties' && <Counterparties />}
         {activeTab === 'settings' && <Settings />}
       </div>
     </div>
