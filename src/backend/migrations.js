@@ -4,7 +4,15 @@ const sqlite3 = require('sqlite3').verbose();
 const DB_PATH = path.join(__dirname, '..', '..', 'db', 'app.db');
 
 function runMigrations() {
-  const db = new sqlite3.Database(DB_PATH);
+  console.log('Initializing database at:', DB_PATH);
+
+  const db = new sqlite3.Database(DB_PATH, (err) => {
+    if (err) {
+      console.error('Failed to open database:', err);
+      throw err;
+    }
+    console.log('Database connection established');
+  });
 
   db.serialize(() => {
     // Klienci / Dostawcy (jedna tabela "counterparties" z typem)
@@ -114,7 +122,13 @@ function runMigrations() {
     ;`);
   });
 
-  db.close();
+  db.close((err) => {
+    if (err) {
+      console.error('Failed to close database:', err);
+    } else {
+      console.log('Database migrations completed successfully');
+    }
+  });
 }
 
 module.exports = { runMigrations };

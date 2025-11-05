@@ -1,10 +1,122 @@
 const { useState, useEffect } = React;
 
+// Modal do dodawania nowego klienta/dostawcy
+function AddCounterpartyModal({ type, onClose, onAdded }) {
+  const [name, setName] = useState('');
+  const [vatId, setVatId] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!name) {
+      alert('Nazwa jest wymagana');
+      return;
+    }
+    const id = await window.api.addCounterparty({
+      type,
+      name,
+      vat_id: vatId || null,
+      email: email || null,
+      phone: phone || null,
+      address: address || null
+    });
+    alert('Dodano pomyślnie!');
+    onAdded({ id, name, vat_id: vatId });
+    onClose();
+  };
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'rgba(0,0,0,0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 9999
+    }}>
+      <div style={{
+        background: 'white',
+        padding: '30px',
+        borderRadius: '8px',
+        width: '500px',
+        maxWidth: '90%'
+      }}>
+        <h3 style={{ marginBottom: '20px' }}>
+          Dodaj {type === 'client' ? 'klienta' : 'dostawcę'}
+        </h3>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="form-label">Nazwa *</label>
+            <input
+              type="text"
+              className="form-input"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">NIP</label>
+            <input
+              type="text"
+              className="form-input"
+              value={vatId}
+              onChange={e => setVatId(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Email</label>
+            <input
+              type="email"
+              className="form-input"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Telefon</label>
+            <input
+              type="text"
+              className="form-input"
+              value={phone}
+              onChange={e => setPhone(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Adres</label>
+            <textarea
+              className="form-input"
+              value={address}
+              onChange={e => setAddress(e.target.value)}
+              rows="2"
+            />
+          </div>
+          <div className="flex flex-end" style={{ gap: '10px', marginTop: '20px' }}>
+            <button type="button" className="btn btn-secondary" onClick={onClose}>
+              Anuluj
+            </button>
+            <button type="submit" className="btn btn-primary">
+              Dodaj
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 // Komponent autouzupełniania klientów/dostawców
 function ClientAutocomplete({ type, onSelect, placeholder }) {
   const [query, setQuery] = useState('');
   const [list, setList] = useState([]);
   const [showList, setShowList] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     if (!query) {
@@ -19,30 +131,52 @@ function ClientAutocomplete({ type, onSelect, placeholder }) {
   }, [query, type]);
 
   return (
-    <div className="autocomplete-container">
-      <input
-        className="form-input"
-        placeholder={placeholder}
-        value={query}
-        onChange={e => setQuery(e.target.value)}
-        onFocus={() => query && setShowList(true)}
-      />
-      {showList && list.length > 0 && (
-        <div className="autocomplete-list">
-          {list.map(r => (
-            <div
-              key={r.id}
-              className="autocomplete-item"
-              onClick={() => {
-                onSelect(r);
-                setQuery(r.name);
-                setShowList(false);
-              }}
-            >
-              {r.name} {r.vat_id ? `• NIP: ${r.vat_id}` : ''}
+    <div>
+      <div className="flex" style={{ gap: '5px' }}>
+        <div className="autocomplete-container" style={{ flex: 1 }}>
+          <input
+            className="form-input"
+            placeholder={placeholder}
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            onFocus={() => query && setShowList(true)}
+          />
+          {showList && list.length > 0 && (
+            <div className="autocomplete-list">
+              {list.map(r => (
+                <div
+                  key={r.id}
+                  className="autocomplete-item"
+                  onClick={() => {
+                    onSelect(r);
+                    setQuery(r.name);
+                    setShowList(false);
+                  }}
+                >
+                  {r.name} {r.vat_id ? `• NIP: ${r.vat_id}` : ''}
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
+        <button
+          type="button"
+          className="btn btn-secondary btn-small"
+          onClick={() => setShowModal(true)}
+          style={{ padding: '10px 15px' }}
+        >
+          + Nowy
+        </button>
+      </div>
+      {showModal && (
+        <AddCounterpartyModal
+          type={type}
+          onClose={() => setShowModal(false)}
+          onAdded={(c) => {
+            onSelect(c);
+            setQuery(c.name);
+          }}
+        />
       )}
     </div>
   );
