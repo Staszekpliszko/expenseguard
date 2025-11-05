@@ -9,6 +9,53 @@ const GUS_TEST_API_URL = 'https://wyszukiwarkaregontest.stat.gov.pl/wsBIR/Usluga
 const TEST_API_KEY = 'abcde12345abcde12345';
 
 /**
+ * Parsuj odpowiedź MTOM (multipart)
+ */
+function parseMTOM(data) {
+  console.log('Parsing MTOM response...');
+
+  // Jeśli to nie jest MTOM, zwróć jak jest
+  if (!data.includes('Content-ID') && !data.includes('--uuid')) {
+    return data;
+  }
+
+  // Znajdź część z XML-em (po pierwszym pustym wierszu)
+  const parts = data.split('\r\n\r\n');
+
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i];
+    // Szukaj części która zawiera XML
+    if (part.trim().startsWith('<?xml') || part.trim().startsWith('<s:Envelope') || part.trim().startsWith('<soap:Envelope')) {
+      console.log('Found XML part in MTOM');
+      // Usuń trailing boundary jeśli istnieje
+      let xmlPart = part;
+      const boundaryIndex = xmlPart.indexOf('\r\n--uuid');
+      if (boundaryIndex > 0) {
+        xmlPart = xmlPart.substring(0, boundaryIndex);
+      }
+      return xmlPart.trim();
+    }
+  }
+
+  // Jeśli nie znaleziono, spróbuj wyciągnąć wszystko między <?xml a końcem envelope
+  const xmlStart = data.indexOf('<?xml');
+  if (xmlStart >= 0) {
+    let xmlEnd = data.lastIndexOf('</s:Envelope>');
+    if (xmlEnd < 0) {
+      xmlEnd = data.lastIndexOf('</soap:Envelope>');
+    }
+    if (xmlEnd > xmlStart) {
+      const xml = data.substring(xmlStart, xmlEnd + '</s:Envelope>'.length);
+      console.log('Extracted XML from MTOM');
+      return xml;
+    }
+  }
+
+  console.error('Could not extract XML from MTOM response');
+  return data;
+}
+
+/**
  * Wykonaj zapytanie SOAP do API GUS
  */
 function soapRequest(url, action, body, sid = null) {
@@ -16,7 +63,7 @@ function soapRequest(url, action, body, sid = null) {
     const urlObj = new URL(url);
 
     const headers = {
-      'Content-Type': 'application/soap+xml; charset=utf-8',
+      'Content-Type': 'text/xml; charset=utf-8',
       'SOAPAction': action,
       'Content-Length': Buffer.byteLength(body)
     };
@@ -53,7 +100,9 @@ function soapRequest(url, action, body, sid = null) {
         console.log('Body (first 500 chars):', data.substring(0, 500));
 
         if (res.statusCode >= 200 && res.statusCode < 300) {
-          resolve(data);
+          // Parsuj MTOM jeśli to multipart
+          const processedData = parseMTOM(data);
+          resolve(processedData);
         } else {
           reject(new Error(`HTTP ${res.statusCode}: ${data.substring(0, 200)}`));
         }
@@ -76,11 +125,8 @@ function soapRequest(url, action, body, sid = null) {
  */
 async function login(apiUrl, apiKey) {
   const soapEnvelope = `<?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ns="http://CIS/BIR/PUBL/2014/07">
-  <soap:Header xmlns:wsa="http://www.w3.org/2005/08/addressing">
-    <wsa:To>${apiUrl}</wsa:To>
-    <wsa:Action>http://CIS/BIR/PUBL/2014/07/IUslugaBIRzewnPubl/Zaloguj</wsa:Action>
-  </soap:Header>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="http://CIS/BIR/PUBL/2014/07">
+  <soap:Header/>
   <soap:Body>
     <ns:Zaloguj>
       <ns:pKluczUzytkownika>${apiKey}</ns:pKluczUzytkownika>
@@ -106,7 +152,17 @@ async function login(apiUrl, apiKey) {
 
       try {
         console.log('Parsed result:', JSON.stringify(result, null, 2));
-        const sid = result['s:Envelope']['s:Body'][0]['ZalogujResponse'][0]['ZalogujResult'][0];
+
+        // Spróbuj różnych namespace prefixów
+        let sid;
+        if (result['s:Envelope']) {
+          sid = result['s:Envelope']['s:Body'][0]['ZalogujResponse'][0]['ZalogujResult'][0];
+        } else if (result['soap:Envelope']) {
+          sid = result['soap:Envelope']['soap:Body'][0]['ZalogujResponse'][0]['ZalogujResult'][0];
+        } else if (result['Envelope']) {
+          sid = result['Envelope']['Body'][0]['ZalogujResponse'][0]['ZalogujResult'][0];
+        }
+
         console.log('Session ID:', sid);
         resolve(sid);
       } catch (e) {
@@ -123,11 +179,8 @@ async function login(apiUrl, apiKey) {
  */
 async function searchByNipSoap(apiUrl, sid, nip) {
   const soapEnvelope = `<?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ns="http://CIS/BIR/PUBL/2014/07" xmlns:dat="http://CIS/BIR/PUBL/2014/07/DataContract">
-  <soap:Header xmlns:wsa="http://www.w3.org/2005/08/addressing">
-    <wsa:To>${apiUrl}</wsa:To>
-    <wsa:Action>http://CIS/BIR/PUBL/2014/07/IUslugaBIRzewnPubl/DaneSzukajPodmioty</wsa:Action>
-  </soap:Header>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="http://CIS/BIR/PUBL/2014/07" xmlns:dat="http://CIS/BIR/PUBL/2014/07/DataContract">
+  <soap:Header/>
   <soap:Body>
     <ns:DaneSzukajPodmioty>
       <ns:pParametryWyszukiwania>
@@ -155,7 +208,17 @@ async function searchByNipSoap(apiUrl, sid, nip) {
 
       try {
         console.log('Parsed search result:', JSON.stringify(result, null, 2));
-        const xmlData = result['s:Envelope']['s:Body'][0]['DaneSzukajPodmiotyResponse'][0]['DaneSzukajPodmiotyResult'][0];
+
+        // Spróbuj różnych namespace prefixów
+        let xmlData;
+        if (result['s:Envelope']) {
+          xmlData = result['s:Envelope']['s:Body'][0]['DaneSzukajPodmiotyResponse'][0]['DaneSzukajPodmiotyResult'][0];
+        } else if (result['soap:Envelope']) {
+          xmlData = result['soap:Envelope']['soap:Body'][0]['DaneSzukajPodmiotyResponse'][0]['DaneSzukajPodmiotyResult'][0];
+        } else if (result['Envelope']) {
+          xmlData = result['Envelope']['Body'][0]['DaneSzukajPodmiotyResponse'][0]['DaneSzukajPodmiotyResult'][0];
+        }
+
         console.log('XML Data:', xmlData);
         resolve(xmlData);
       } catch (e) {
@@ -172,11 +235,8 @@ async function searchByNipSoap(apiUrl, sid, nip) {
  */
 async function logout(apiUrl, sid) {
   const soapEnvelope = `<?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:ns="http://CIS/BIR/PUBL/2014/07">
-  <soap:Header xmlns:wsa="http://www.w3.org/2005/08/addressing">
-    <wsa:To>${apiUrl}</wsa:To>
-    <wsa:Action>http://CIS/BIR/PUBL/2014/07/IUslugaBIRzewnPubl/Wyloguj</wsa:Action>
-  </soap:Header>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="http://CIS/BIR/PUBL/2014/07">
+  <soap:Header/>
   <soap:Body>
     <ns:Wyloguj>
       <ns:pIdentyfikatorSesji>${sid}</ns:pIdentyfikatorSesji>
