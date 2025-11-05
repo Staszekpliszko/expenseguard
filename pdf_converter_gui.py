@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 GUI dla konwertera PDF Bank Millennium CHF do CSV/Excel
-Autor: Claude
+Copyright © 2025 A.S. LIVE MEDIA Sp. z O.O.
+Developed with Claude AI
 Data: 2025-11-04
 Poprawki: 2025-11-05 - Fix dla kompilacji do exe
 """

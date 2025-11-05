@@ -1,21 +1,28 @@
 # Wymagania dla Konwertera PDF Bank Millennium CHF
+# A.S. LIVE MEDIA Sp. z O.O.
 # Instalacja: pip install -r requirements.txt
 
 # PDF Processing
-pdfplumber==0.10.3
-pdfminer.six==20221105
+pdfplumber>=0.10.3
+pdfminer.six>=20221105
 
 # Data Processing
-pandas==2.1.3
-openpyxl==3.1.2
+# UWAGA: pandas 2.1.3 NIE WSPIERA Python 3.13!
+# Używamy nowszej wersji która wspiera Python 3.13
+pandas>=2.2.0
+openpyxl>=3.1.2
 
 # GUI (już wbudowane w Python, ale dla pewności)
 # tkinter jest wbudowany w standardowej dystrybucji Python
 
 # Build do EXE
-pyinstaller==6.2.0
+pyinstaller>=6.2.0
 
 # Dodatkowe zależności dla pdfplumber
-Pillow==10.1.0
-pypdfium2==4.24.0
-charset-normalizer==3.3.2
+Pillow>=10.1.0
+pypdfium2>=4.24.0
+charset-normalizer>=3.3.2
+
+# ALTERNATYWNIE dla starszego Pythona (3.8-3.12):
+# Jeśli masz Python 3.8-3.12, możesz użyć:
+# pandas==2.1.3
